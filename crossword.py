@@ -14,6 +14,7 @@ class Crossword(object):
 		self.available_words = available_words
 		self.current_word_list = current_word_list
 		self.grid = grid
+		# This flag is used when user specifies some word and its location before computation
 		self.flag = False
 		self.sort_list()
 		self.clear_grid()
@@ -39,6 +40,7 @@ class Crossword(object):
 
 	def compute_crossword(self,spins=4,loops=50):
 		self.clear_grid() if not self.flag else True	
+		copy = self.grid	
 		iterator = 0
 		grid = []
 		current_word_list = []
@@ -57,7 +59,7 @@ class Crossword(object):
 			if len(current_word_list) < len(self.current_word_list):
 				grid = self.grid
 				current_word_list = self.current_word_list
-				self.clear_grid()
+				self.grid = copy
 				self.sort_list()
 			iterator +=1
 		return True
