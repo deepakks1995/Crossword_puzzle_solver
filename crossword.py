@@ -5,14 +5,16 @@ from copy import copy as duplicate
 
 class Crossword(object):
 	"""docstring for Crossword"""
-	def __init__(self, row, col, empty = '-', maxloops = 2000, available_words = []):
+	def __init__(self, row, col, empty = '-', maxloops = 2000, available_words = [], current_word_list = [], grid = []):
 		super(Crossword, self).__init__()
 		self.row = row
 		self.col = col
 		self.empty = empty
 		self.maxloops = maxloops
 		self.available_words = available_words
-		self.current_word_list = []
+		self.current_word_list = current_word_list
+		self.grid = grid
+		self.flag = False
 		self.sort_list()
 		self.clear_grid()
 
@@ -35,22 +37,29 @@ class Crossword(object):
 		random.shuffle(temp_list)
 		self.available_words = temp_list
 
-	def compute_crossword(self, total_grids=5,spins=4):
-		copy = Crossword(self.row, self.col, self.empty, self.maxloops, self.available_words)
+	def compute_crossword(self,spins=4,loops=50):
+		self.clear_grid() if not self.flag else True	
 		iterator = 0
-		while iterator < total_grids:
-			copy.clear_grid()
-			copy.current_word_list = []
+		grid = []
+		current_word_list = []
+		while iterator < loops:
+			if not self.flag:
+				self.current_word_list = []
+			# for word in self.current_word_list:
+			# 	print word.word
 			itr = 0
 			while itr < spins:
-				for word in copy.available_words:
-					if not word in copy.current_word_list:
-						copy.add_to_grid(word)
+				for word in self.available_words:
+					if not word in self.current_word_list:
+						self.add_to_grid(word)
 				itr += 1
-			if len(copy.current_word_list) > 0:
-				self.current_word_list = copy.current_word_list
-				self.grid = copy.grid
-			iterator += 1
+			# print len(self.current_word_list)
+			if len(current_word_list) < len(self.current_word_list):
+				grid = self.grid
+				current_word_list = self.current_word_list
+				self.clear_grid()
+				self.sort_list()
+			iterator +=1
 		return True
 
 	def compute_coordinates(self, word):
@@ -187,6 +196,15 @@ class Crossword(object):
 					print cell,
 			print ""
 
+	def set_locaion_word(self, row, col, Vertical,  word):
+			for letter in word:
+				self.grid[row-1][col-1] = letter
+				if Vertical:
+					row += 1
+				else:
+					col += 1
+			self.current_word_list.append(Word(word,""))
+
 
 word_list = ['saffron', 'The dried, orange yellow plant used to as dye and as a cooking spice.'], \
     ['pumpernickel', 'Dark, sour bread made from coarse ground rye.'], \
@@ -208,16 +226,24 @@ word_list = ['saffron', 'The dried, orange yellow plant used to as dye and as a 
     ['plague', 'A widespread affliction or calamity.'], \
     ['yarn', 'A strand of twisted threads or a long elaborate narrative.'], \
     ['snicker', 'A snide, slightly stifled laugh.']
- 
-a = Crossword(13, 13, '-', 1, word_list)
-flag = True
-while flag:
-	a.compute_crossword(1)
-	a.print_solution()
-	var  = raw_input("Generate another puzzle! [y/n] ")
-	if var == 'n':
-		flag = False
-	elif var == 'y':
-		pass
-	else: 
-		print "Wrong Input...Exiting....."
+
+
+if __name__ == "__main__": 
+	a = Crossword(13, 13, '-', 1, word_list)
+	word = raw_input("Enter word to input")
+	row = int(raw_input("Enter row"))
+	col = int(raw_input("Enter col"))
+	vertical = int(raw_input("Vertical"))
+	a.flag = True
+	flag = True
+	a.set_locaion_word(row, col ,vertical, word)
+	while flag:
+		a.compute_crossword()
+		a.print_solution()
+		var  = raw_input("Generate another puzzle! [y/n] ")
+		if var == 'n':
+			flag = False
+		elif var == 'y':
+			pass
+		else: 
+			print "Wrong Input...Exiting....."
