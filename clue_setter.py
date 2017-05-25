@@ -8,8 +8,13 @@ try:
 except ImportError:
 	raise ImportError, "The Tkinter module is required to run this package" 
 
+'''
+Class: Clue_Setter
+This class is used to create a new Interface named 'ClueSetter'
+which allows the user to set the clues corresponding to each 
+and every word in the puzzle
+'''
 class Clue_Setter(object):
-	"""docstring for Clue_Setter"""
 	def __init__(self, parent, game, width, side = 25):
 		super(Clue_Setter, self).__init__()
 		self.parent = parent
@@ -18,9 +23,12 @@ class Clue_Setter(object):
 		self.WIDTH = width
 		self.HEIGHT = side * len(self.game.current_word_list) + 40
 		self.MARGIN = 20
-		self.font_size = 10
+		self.font_size = 5
 		self.__INITUI()
 
+	'''
+	Function to initaiate the UI of Interfacce
+	'''
 	def __INITUI(self):
 		self.parent.title("Clue Setter")
 		self.entry = []
@@ -36,6 +44,9 @@ class Clue_Setter(object):
 							text="Export ",
 								command=self.__export).grid(row=len(self.game.current_word_list)+3)
 
+	'''
+	Function to print the crossword puzzle
+	'''	
 	def __export(self):
 		for i in range(len(self.game.current_word_list)):
 			self.game.current_word_list[i].clue = str(self.entry[i].get())
@@ -53,11 +64,4 @@ class Clue_Setter(object):
 			export.__draw__legend__(pdf)
 
 if __name__=='__main__':
-	words = Json_Parser()
-	words.json_parse("input.json")
-	game = Crossword(13, 13, '-', 1, words.allowed_words)
-	game.compute_crossword()
-	root = Tk()
-	self = Clue_Setter(root, game, 400)
-	root.geometry("%dx%d" % (self.WIDTH, self.HEIGHT + 40))
-	root.mainloop(), 
+	print "You are in the wrong file" 

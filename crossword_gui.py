@@ -235,6 +235,6 @@ if __name__ == '__main__':
 	game = Crossword(int(words.row), int(words.col), 'X', 1, words.allowed_words)
 	game.compute_crossword(1,10)
 	root = Tk()
-	self = CrosswordGui(root, game, 45)
+	self = CrosswordGui(root, game, int(words.grid_size))
 	root.geometry("%dx%d" % (self.WIDTH, self.HEIGHT + 40))
 	root.mainloop(), 

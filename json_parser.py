@@ -27,8 +27,4 @@ class Json_Parser(object):
 				self.allowed_words.append([str(word), " "])
 
 if __name__=='__main__':
-	self = Json_Parser()
-	self.json_parse("input.json")
-	print self.allowed_words
-	print self.words_not_allowed
- 		 
+	print "You are in the wrong file"
