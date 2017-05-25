@@ -3,6 +3,7 @@ from crossword import Crossword
 from word import Word
 from json_parser import Json_Parser
 from clue_setter import Clue_Setter
+from math import *
 try:
 	from Tkinter import *
 except ImportError:
@@ -21,7 +22,7 @@ class CrosswordGui(Frame):
 		self.HEIGHT = self.MARGIN*2 + self.SIDE * self.row
 		self.WIDTH = self.MARGIN*2 + self.SIDE * self.col
 		self.grid_cleared = False
-		# self.cell_selected = False
+		self.previous_row, self.previous_col = -5, -5
 		self.__initUI()
 
 	def __initUI(self):
@@ -37,7 +38,7 @@ class CrosswordGui(Frame):
 									text="Compute Crossword",
 										command=self.__compute_crossword)
 		self.specify_location = Button(self,
-									text="Specify Location for word",
+									text="Try this word",
 										command=self.__specify_location,
 											state=DISABLED)
 		self.set_clues = Button(self, 
@@ -55,6 +56,11 @@ class CrosswordGui(Frame):
 		self.canvas.config(state="disabled")
 
 	def __set_clues(self):
+		self.set_clues.config(state="disabled")
+		self.compute_crossword.config(state="disabled")
+		self.specify_location.config(state="disabled")
+		self.clear_button.config(state="disabled")
+		print "This Crossword Puzzle has been finalized. To try Another Puzzle please restart the Program"
 		root = Tk()
 		self = Clue_Setter(root, self.game, self.WIDTH, self.SIDE)
 		root.geometry("%dx%d" % (self.WIDTH, self.HEIGHT + 40))
@@ -83,8 +89,6 @@ class CrosswordGui(Frame):
 				x = self.MARGIN + j * self.SIDE + self.SIDE / 2
 				y = self.MARGIN + i * self.SIDE + self.SIDE / 2
 				if answer != self.game.empty:
-					# original = self.game.start_puzzle[i][j]
-					# color = "black" if answer == original else "sea green"
 					color = "black"
 					self.canvas.create_text(
 						x, y, text=answer, tags="texts", fill=color
@@ -98,22 +102,33 @@ class CrosswordGui(Frame):
 		self.game = game
 		self.__draw_puzzle()
 		self.specify_location.config(state="disabled")
+		self.set_clues.config(state="normal")
+		print "Crossword Generated! To try another press Compute Crossword button"
 
 	def __specify_location(self):
+		for word in self.entered_word_list:
+			print word
+			self.game.current_word_list.append(Word(word, ""))
+		# self.game.current_word_list.append(Word(word, "") for word in self.entered_word_list)
+		self.entered_word = ""
+		self.entered_word_list = []
 		self.game.flag = True
 		self.game.compute_crossword()
 		self.__draw_puzzle()
 		self.grid_cleared = False
 		self.specify_location.config(state="disabled")
+		self.compute_crossword.config(state="normal")
+		self.set_clues.config(state="normal")
 
 	def __clear_answers(self):
 		self.canvas.delete("cursor")
 		self.canvas.delete("texts")
 		self.game.flag = False
-		# self.cell_selected = False
 		self.grid_cleared = True
 		self.game.clear_grid()
-		self.specify_location.config(state="normal")
+		self.entered_word = ""
+		self.entered_word_list = []
+		self.set_clues.config(state="disabled")
 
 	def __cell_clicked(self, event):
 		x, y = event.x, event.y
@@ -141,31 +156,19 @@ class CrosswordGui(Frame):
 
 	def __key_pressed(self, event):
 		if self.current_row >= 0 and self.current_col >= 0 and self.grid_cleared:
+			self.compute_crossword.config(state="disabled")
+			self.set_clues.config(state="disabled")
+			self.specify_location.config(state="normal")
 			self.game.grid[self.current_row][self.current_col] = (event.char)
+			if ( (abs(self.current_row - self.previous_row) == 1 ) or (abs(self.current_col - self.previous_col) == 1)):
+				self.entered_word += event.char
+			else:
+				self.entered_word_list.append(self.entered_word)
+				self.entered_word = ""
+			self.previous_row, self.previous_col = self.current_row, self.current_col
 			self.current_col, self.current_row = -1, -1
 			self.__draw_puzzle()
 			self.__draw_cursor()
-
-word_list = ['saffron', 'The dried, orange yellow plant used to as dye and as a cooking spice.'], \
-    ['pumpernickel', 'Dark, sour bread made from coarse ground rye.'], \
-    ['leaven', 'An agent, such as yeast, that cause batter or dough to rise..'], \
-    ['coda', 'Musical conclusion of a movement or composition.'], \
-    ['paladin', 'A heroic champion or paragon of chivalry.'], \
-    ['syncopation', 'Shifting the emphasis of a beat to the normally weak beat.'], \
-    ['albatross', 'A large bird of the ocean having a hooked beek and long, narrow wings.'], \
-    ['harp', 'Musical instrument with 46 or more open strings played by plucking.'], \
-    ['piston', 'A solid cylinder or disk that fits snugly in a larger cylinder and moves under pressure as in an engine.'], \
-    ['caramel', 'A smooth chery candy made from suger, butter, cream or milk with flavoring.'], \
-    ['coral', 'A rock-like deposit of organism skeletons that make up reefs.'], \
-    ['dawn', 'The time of each morning at which daylight begins.'], \
-    ['pitch', 'A resin derived from the sap of various pine trees.'], \
-    ['fjord', 'A long, narrow, deep inlet of the sea between steep slopes.'], \
-    ['lip', 'Either of two fleshy folds surrounding the mouth.'], \
-    ['lime', 'The egg-shaped citrus fruit having a green coloring and acidic juice.'], \
-    ['mist', 'A mass of fine water droplets in the air near or in contact with the ground.'], \
-    ['plague', 'A widespread affliction or calamity.'], \
-    ['yarn', 'A strand of twisted threads or a long elaborate narrative.'], \
-    ['snicker', 'A snide, slightly stifled laugh.']
 
 if __name__ == '__main__':
 	words = Json_Parser()
@@ -173,6 +176,6 @@ if __name__ == '__main__':
 	game = Crossword(13, 13, 'X', 1, words.allowed_words)
 	game.compute_crossword()
 	root = Tk()
-	self = CrosswordGui(root, game, 30)
+	self = CrosswordGui(root, game, 45)
 	root.geometry("%dx%d" % (self.WIDTH, self.HEIGHT + 40))
 	root.mainloop(), 

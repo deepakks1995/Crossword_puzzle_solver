@@ -2,6 +2,7 @@ import random, time
 from word import Word
 import sys
 from copy import copy as duplicate
+from copy import deepcopy
 
 class Crossword(object):
 	"""docstring for Crossword"""
@@ -21,6 +22,7 @@ class Crossword(object):
 
 	def clear_grid(self):
 		self.grid = []
+		self.current_word_list = []
 		for i in range(self.row):
 			row_list = []
 			for j in range(self.col):
@@ -40,28 +42,34 @@ class Crossword(object):
 
 	def compute_crossword(self,spins=4,loops=50):
 		self.clear_grid() if not self.flag else True	
-		copy = self.grid	
+		copy = deepcopy(self.grid)
+		copy_word_list = deepcopy(self.current_word_list)	
 		iterator = 0
 		grid = []
 		current_word_list = []
 		while iterator < loops:
-			if not self.flag:
-				self.current_word_list = []
-			# for word in self.current_word_list:
-			# 	print word.word
+			self.clear_grid()
+			if self.flag == True:
+				self.current_word_list = deepcopy(copy_word_list)
+				self.grid = deepcopy(copy)
+			self.sort_list()
 			itr = 0
 			while itr < spins:
 				for word in self.available_words:
 					if not word in self.current_word_list:
-						# print word.word
-						self.add_to_grid(word)
+						if word.length < self.row and word.length < self.col:
+							try:
+								self.add_to_grid(word)
+							except IndexError:
+								print "Error in handling:"  + str(word.word) + "try again"
 				itr += 1
-			# print len(self.current_word_list)
 			if len(current_word_list) < len(self.current_word_list):
-				grid = self.grid
-				current_word_list = self.current_word_list
-				self.grid = copy
-				self.sort_list()
+				del grid
+				del current_word_list
+				grid = deepcopy(self.grid)
+				current_word_list = deepcopy(self.current_word_list)
+				self.grid = deepcopy(copy)
+				self.current_word_list = deepcopy(copy_word_list)
 			iterator +=1
 		self.grid = grid
 		self.current_word_list = current_word_list
