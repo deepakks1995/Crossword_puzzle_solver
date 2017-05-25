@@ -18,3 +18,11 @@ class Word(object):
  		else:
  			return 'across'
  		 
+ 	def __eq__(self, other):
+ 		if isinstance(other, Word):
+ 			return other.word == self.word
+ 		else:
+ 			return NotImplemented
+
+if __name__=='__main__':
+	print "You are in the wrong file"

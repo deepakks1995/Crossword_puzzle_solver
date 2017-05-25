@@ -19,12 +19,12 @@ class Json_Parser(object):
 		if len(data['constraints']) != 0 :
 			if isinstance(data['constraints'][0], list):
 				for _list in data['constraints']:
-					self.words_not_allowed.append([str(_list[0])," "])
+					self.words_not_allowed.append([str(_list[0]),""])
 			else:
 				self.words_not_allowed = [_ for _ in data['constraints']]
 		for word in data['variables']['words_allowed']:
 			if not word in self.words_not_allowed:
-				self.allowed_words.append([str(word), " "])
+				self.allowed_words.append([str(word), ""])
 
 if __name__=='__main__':
 	print "You are in the wrong file"

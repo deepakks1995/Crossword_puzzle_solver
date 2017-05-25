@@ -43,20 +43,20 @@ class Crossword(object):
 	def compute_crossword(self,spins=4,loops=50):
 		self.clear_grid() if not self.flag else True	
 		copy = deepcopy(self.grid)
-		copy_word_list = deepcopy(self.current_word_list)	
+		copy_word_list = self.current_word_list[:]	
 		iterator = 0
 		grid = []
 		current_word_list = []
 		while iterator < loops:
 			self.clear_grid()
 			if self.flag == True:
-				self.current_word_list = deepcopy(copy_word_list)
+				self.current_word_list = copy_word_list[:]
 				self.grid = deepcopy(copy)
 			self.sort_list()
 			itr = 0
 			while itr < spins:
 				for word in self.available_words:
-					if not word in self.current_word_list:
+					if word not in self.current_word_list:
 						if word.length < self.row and word.length < self.col:
 							try:
 								self.add_to_grid(word)
@@ -66,13 +66,13 @@ class Crossword(object):
 			if len(current_word_list) < len(self.current_word_list):
 				del grid
 				del current_word_list
+				grid = []
+				current_word_list = []
 				grid = deepcopy(self.grid)
-				current_word_list = deepcopy(self.current_word_list)
-				self.grid = deepcopy(copy)
-				self.current_word_list = deepcopy(copy_word_list)
+				current_word_list = self.current_word_list[:]
 			iterator +=1
-		self.grid = grid
-		self.current_word_list = current_word_list
+		self.grid = deepcopy(grid)
+		self.current_word_list = current_word_list[:]
 		return True
 
 	def compute_coordinates(self, word):
