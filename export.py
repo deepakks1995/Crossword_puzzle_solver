@@ -45,7 +45,7 @@ class ExportCrossword(object):
         cell_taken = []
         number_taken = []
         for word in self.word_list:
-            if [word.row-1, word.col-1] not in cell_taken:
+            if not [word.row-1, word.col-1] in cell_taken:
                 computed_grid[word.row - 1][word.col - 1] = str(count)
                 cell_taken.append([word.row-1, word.col-1])
                 number_taken.append(count)

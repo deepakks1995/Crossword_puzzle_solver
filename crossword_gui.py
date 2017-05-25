@@ -37,7 +37,7 @@ class CrosswordGui(Frame):
 									text="Compute Crossword",
 										command=self.__compute_crossword)
 		self.specify_location = Button(self,
-									text="Try this word",
+									text="Try these words",
 										command=self.__specify_location,
 											state=DISABLED)
 		self.set_clues = Button(self, 
@@ -97,7 +97,7 @@ class CrosswordGui(Frame):
 		self.__clear_answers()
 		self.grid_cleared = False
 		game = Crossword(self.row, self.col, self.game.empty, self.game.maxloops, self.game.available_words)
-		game.compute_crossword()
+		game.compute_crossword(1,10)
 		self.game = game
 		self.__draw_puzzle()
 		self.specify_location.config(state="disabled")
@@ -138,7 +138,13 @@ class CrosswordGui(Frame):
 							while itr < self.col and grid[i][itr] != self.game.empty:
 								current_word += grid[i][itr]
 								itr += 1
-							extracted_words.append(current_word)
+							word = Word("", "")
+							word.row = i + 1
+							word.col = j + 1
+							word.vertical = 0
+							word.word = current_word
+							word.length = len(current_word)
+							extracted_words.append(word)
 							j = itr - 1
 							current_word = ""
 				j += 1
@@ -155,23 +161,30 @@ class CrosswordGui(Frame):
 							while itr < self.row and grid[itr][j]!= self.game.empty:
 								current_word += grid[itr][j]
 								itr += 1
-							extracted_words.append(current_word)
+							word = Word("", "")
+							word.word = current_word
+							word.length = len(current_word)
+							word.row = i + 1
+							word.col = j + 1
+							word.vertical = 1
+							extracted_words.append(word)
 							i = itr - 1
 							current_word = ""
 				i += 1
 			j += 1
-		return [Word(word, "") for word in extracted_words ]
+		return extracted_words
 
 	def __specify_location(self):
 		# self.game.current_word_list.append(Word(word, "") for word in self.entered_word_list)
 		self.game.flag = True
 		self.game.current_word_list  = self.__extract_words__()
-		self.game.compute_crossword()
+		self.game.compute_crossword(1,10)
 		self.__draw_puzzle()
 		self.grid_cleared = False
 		self.specify_location.config(state="disabled")
 		self.compute_crossword.config(state="normal")
 		self.set_clues.config(state="normal")
+		print "Crossword Generated! To try another press Compute Crossword button"
 
 	def __clear_answers(self):
 		self.canvas.delete("cursor")
@@ -218,9 +231,9 @@ class CrosswordGui(Frame):
 
 if __name__ == '__main__':
 	words = Json_Parser()
-	words.json_parse("input.json")
-	game = Crossword(13, 13, 'X', 1, words.allowed_words)
-	game.compute_crossword()
+	words.json_parse("result.json")
+	game = Crossword(int(words.row), int(words.col), 'X', 1, words.allowed_words)
+	game.compute_crossword(1,10)
 	root = Tk()
 	self = CrosswordGui(root, game, 45)
 	root.geometry("%dx%d" % (self.WIDTH, self.HEIGHT + 40))

@@ -21,7 +21,7 @@ class Json_Parser(object):
 				for _list in data['constraints']:
 					self.words_not_allowed.append([str(_list[0])," "])
 			else:
-				self.words_not_allowed = [_ for _ in data['variables']['constraints']]
+				self.words_not_allowed = [_ for _ in data['constraints']]
 		for word in data['variables']['words_allowed']:
 			if not word in self.words_not_allowed:
 				self.allowed_words.append([str(word), " "])
