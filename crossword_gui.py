@@ -2,8 +2,9 @@
 from crossword import Crossword
 from word import Word
 from sideKicks import Json_Parser
+from clue_setter import Clue_Setter
 try:
-	from Tkinter import Tk, Canvas, Frame, Button, BOTH, TOP, BOTTOM,LEFT,RIGHT
+	from Tkinter import *
 except ImportError:
 	raise ImportError, "The Tkinter module is required to run this package" 
 
@@ -24,26 +25,40 @@ class CrosswordGui(Frame):
 		self.__initUI()
 
 	def __initUI(self):
+
 		self.parent.title("Crossword")
-		self.pack(fill=BOTH, expand=1)
-		self.canvas = Canvas(self, width=self.WIDTH, height=self.HEIGHT)
-		self.canvas.pack(fill=BOTH, side=BOTTOM)
-		clear_button = Button(self,
+		self.pack( expand=0)
+		self.canvas = Canvas(self,state="normal", width=self.WIDTH, height=self.HEIGHT)
+		
+		self.clear_button = Button(self,
 								text="Clear answers",
                               		command=self.__clear_answers)
-		compute_crossword = Button(self,
+		self.compute_crossword = Button(self,
 									text="Compute Crossword",
 										command=self.__compute_crossword)
-		specify_location = Button(self,
+		self.specify_location = Button(self,
 									text="Specify Location for word",
-										command=self.__specify_location)
-		clear_button.pack(side=LEFT)
-		compute_crossword.pack(side=LEFT)
-		specify_location.pack(side=LEFT)
+										command=self.__specify_location,
+											state=DISABLED)
+		self.set_clues = Button(self, 
+								text="Set Clues",
+									command=self.__set_clues)
+		self.canvas.pack(fill=BOTH, side=TOP)
+		self.set_clues.pack(side=LEFT)
+		self.clear_button.pack(side=LEFT)
+		self.compute_crossword.pack(side=LEFT)
+		self.specify_location.pack(side=LEFT)
 		self.__draw_grid()
 		self.__draw_puzzle()
 		self.canvas.bind("<Button-1>", self.__cell_clicked)
 		self.canvas.bind("<Key>", self.__key_pressed)
+		self.canvas.config(state="disabled")
+
+	def __set_clues(self):
+		root = Tk()
+		self = Clue_Setter(root, self.game, self.WIDTH, self.SIDE)
+		root.geometry("%dx%d" % (self.WIDTH, self.HEIGHT + 40))
+		root.mainloop(), 
 
 	def __draw_grid(self):
 		for i in range(self.col+1):
@@ -82,20 +97,23 @@ class CrosswordGui(Frame):
 		game.compute_crossword()
 		self.game = game
 		self.__draw_puzzle()
+		self.specify_location.config(state="disabled")
 
 	def __specify_location(self):
 		self.game.flag = True
 		self.game.compute_crossword()
 		self.__draw_puzzle()
-		self.game.flag = False
 		self.grid_cleared = False
+		self.specify_location.config(state="disabled")
 
 	def __clear_answers(self):
 		self.canvas.delete("cursor")
 		self.canvas.delete("texts")
+		self.game.flag = False
 		# self.cell_selected = False
 		self.grid_cleared = True
 		self.game.clear_grid()
+		self.specify_location.config(state="normal")
 
 	def __cell_clicked(self, event):
 		x, y = event.x, event.y
@@ -107,10 +125,6 @@ class CrosswordGui(Frame):
 				self.current_col, self.current_row = col, row
 			if self.grid_cleared:
 				self.current_col, self.current_row = col, row
-			# if (row, col) == (self.row, self.col):
-			# 	self.row, self.col = -1, -1
-			# elif self.game.puzzle[row][col] == 0:
-				# self.row, self.col = row, col
 		self.__draw_cursor()
 
 	def __draw_cursor(self):
@@ -120,13 +134,10 @@ class CrosswordGui(Frame):
 			y0 = self.MARGIN + self.current_row * self.SIDE + 1
 			x1 = self.MARGIN + (self.current_col + 1) * self.SIDE - 1
 			y1 = self.MARGIN + (self.current_row + 1) * self.SIDE - 1
-			# self.cell_selected = True
 			self.canvas.create_rectangle(
 				x0, y0, x1, y1,
 				outline="red", tags="cursor"
 				)
-		# else:
-		# 	self.cell_selected = False
 
 	def __key_pressed(self, event):
 		if self.current_row >= 0 and self.current_col >= 0 and self.grid_cleared:
@@ -159,7 +170,7 @@ word_list = ['saffron', 'The dried, orange yellow plant used to as dye and as a 
 if __name__ == '__main__':
 	words = Json_Parser()
 	words.json_parse("input.json")
-	game = Crossword(13, 13, '-', 1, words.allowed_words)
+	game = Crossword(13, 13, 'X', 1, words.allowed_words)
 	game.compute_crossword()
 	root = Tk()
 	self = CrosswordGui(root, game, 30)
