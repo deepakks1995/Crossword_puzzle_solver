@@ -18,10 +18,11 @@ class ExportCrossword(object):
         self.font_size = font_size
         self.HEIGHT = self.MARGIN*2 + self.grid_size * self.row
         self.WIDTH = self.MARGIN*2 + self.grid_size * self.col
-        self.fig = plt.figure()
-        self.sub = self.fig.add_subplot(111)
+        
 
     def __draw_grid__(self):
+        self.fig = plt.figure()
+        self.sub = self.fig.add_subplot(111)
         for i in range(self.col+1):
             x0 = self.MARGIN + i * self.grid_size
             y0 = self.MARGIN
@@ -35,18 +36,6 @@ class ExportCrossword(object):
             y1 = self.MARGIN + i * self.grid_size
             self.sub.plot([x0, x1], [y0, y1], '-', color="black")
         plt.axis("off")
-
-    def __draw_solution__(self, grid, pdf):
-        for i in xrange(self.row):
-            for j in xrange(self.col):
-                answer = grid[i][j]
-                x = self.MARGIN + (j) * self.grid_size + self.grid_size / 2
-                y = self.MARGIN + (self.row - i-1) * self.grid_size + self.grid_size / 2
-                if True:
-                    color = "black"
-                    self.sub.text(x,y, answer)
-        pdf.savefig()
-        plt.close()
 
     def __draw_puzzle__(self,pdf):
         computed_grid = []
@@ -72,7 +61,16 @@ class ExportCrossword(object):
                     computed_grid[word.row - 1 + i][word.col - 1] = ' '
                 else:
                     computed_grid[word.row - 1 ][word.col - 1 + i] = ' '
-        self.__draw_solution__(computed_grid,pdf)
+        for i in xrange(self.row):
+            for j in xrange(self.col):
+                answer = computed_grid[i][j]
+                x = self.MARGIN + (j) * self.grid_size + self.grid_size / 2
+                y = self.MARGIN + (self.row - i-1) * self.grid_size + self.grid_size / 2
+                if True:
+                    color = "black"
+                    self.sub.text(x,y, answer)
+        pdf.savefig()
+        plt.close()
     
     def __draw__legend__(self, pdf):
         self.fig = plt.figure()
@@ -87,7 +85,7 @@ class ExportCrossword(object):
                 text = "Vertical"
             else:
                 text = "Horizontal"
-            self.sub.text(0, (y1 - x), "[" + str(self.word_list[i].number) + "] (" + text + ")" + self.word_list[i].clue, fontsize = self.font_size)
+            self.sub.text(0, (y1 - x), "[" + str(self.word_list[i].number) + "] (" + text + ")  " + self.word_list[i].clue, fontsize = self.font_size)
         pdf.savefig()
 
 

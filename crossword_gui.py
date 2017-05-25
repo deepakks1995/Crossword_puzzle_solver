@@ -93,7 +93,7 @@ class CrosswordGui(Frame):
 	def __compute_crossword(self):
 		self.__clear_answers()
 		self.grid_cleared = False
-		game = Crossword(13, 13, '-', 1, word_list)
+		game = Crossword(self.row, self.col, self.game.empty, self.game.maxloops, self.game.available_words)
 		game.compute_crossword()
 		self.game = game
 		self.__draw_puzzle()
