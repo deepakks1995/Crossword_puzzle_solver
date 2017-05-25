@@ -1,7 +1,6 @@
 
 from crossword import Crossword
 from word import Word
-from sideKicks import Json_Parser
 from export import ExportCrossword
 from matplotlib.backends.backend_pdf import PdfPages
 try:

@@ -1,7 +1,7 @@
 
 from crossword import Crossword
 from word import Word
-from sideKicks import Json_Parser
+from json_parser import Json_Parser
 from clue_setter import Clue_Setter
 try:
 	from Tkinter import *

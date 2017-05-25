@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from crossword import Crossword
 from word import Word
-from sideKicks import Json_Parser
 import os
 
 class ExportCrossword(object):
