@@ -53,6 +53,7 @@ class Crossword(object):
 			while itr < spins:
 				for word in self.available_words:
 					if not word in self.current_word_list:
+						# print word.word
 						self.add_to_grid(word)
 				itr += 1
 			# print len(self.current_word_list)
@@ -62,6 +63,8 @@ class Crossword(object):
 				self.grid = copy
 				self.sort_list()
 			iterator +=1
+		self.grid = grid
+		self.current_word_list = current_word_list
 		return True
 
 	def compute_coordinates(self, word):

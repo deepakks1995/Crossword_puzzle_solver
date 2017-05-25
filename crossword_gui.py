@@ -19,7 +19,8 @@ class CrosswordGui(Frame):
 		self.SIDE = grid_size
 		self.HEIGHT = self.MARGIN*2 + self.SIDE * self.row
 		self.WIDTH = self.MARGIN*2 + self.SIDE * self.col
-		self.cell_selected = False
+		self.grid_cleared = False
+		# self.cell_selected = False
 		self.__initUI()
 
 	def __initUI(self):
@@ -36,14 +37,9 @@ class CrosswordGui(Frame):
 		specify_location = Button(self,
 									text="Specify Location for word",
 										command=self.__specify_location)
-		done = Button(self,
-						text="Done",
-							command=self.__done)
-		clear_button.pack(fill=BOTH, side=LEFT)
-		compute_crossword.pack(fill=BOTH, side=RIGHT)
-		specify_location.pack(fill=BOTH, side=LEFT)
-		done.pack(fill=BOTH, side = LEFT)
-		# done.bind('<Enter>', self.game.flag)
+		clear_button.pack(side=LEFT)
+		compute_crossword.pack(side=LEFT)
+		specify_location.pack(side=LEFT)
 		self.__draw_grid()
 		self.__draw_puzzle()
 		self.canvas.bind("<Button-1>", self.__cell_clicked)
@@ -81,23 +77,25 @@ class CrosswordGui(Frame):
 
 	def __compute_crossword(self):
 		self.__clear_answers()
+		self.grid_cleared = False
 		game = Crossword(13, 13, '-', 1, word_list)
 		game.compute_crossword()
 		self.game = game
 		self.__draw_puzzle()
 
 	def __specify_location(self):
-		self.__clear_answers()
 		self.game.flag = True
-		print "hi"
-
-	def __done(self):
-		print "no"
+		self.game.compute_crossword()
+		self.__draw_puzzle()
+		self.game.flag = False
+		self.grid_cleared = False
 
 	def __clear_answers(self):
 		self.canvas.delete("cursor")
 		self.canvas.delete("texts")
-		self.cell_selected = False
+		# self.cell_selected = False
+		self.grid_cleared = True
+		self.game.clear_grid()
 
 	def __cell_clicked(self, event):
 		x, y = event.x, event.y
@@ -106,6 +104,8 @@ class CrosswordGui(Frame):
 			self.canvas.focus_set()
 			row, col = (y - self.MARGIN) / self.SIDE, (x - self.MARGIN) / self.SIDE
 			if not self.game.grid[row][col] == self.game.empty:
+				self.current_col, self.current_row = col, row
+			if self.grid_cleared:
 				self.current_col, self.current_row = col, row
 			# if (row, col) == (self.row, self.col):
 			# 	self.row, self.col = -1, -1
@@ -120,16 +120,16 @@ class CrosswordGui(Frame):
 			y0 = self.MARGIN + self.current_row * self.SIDE + 1
 			x1 = self.MARGIN + (self.current_col + 1) * self.SIDE - 1
 			y1 = self.MARGIN + (self.current_row + 1) * self.SIDE - 1
-			self.cell_selected = True
+			# self.cell_selected = True
 			self.canvas.create_rectangle(
 				x0, y0, x1, y1,
 				outline="red", tags="cursor"
 				)
-		else:
-			self.cell_selected = False
+		# else:
+		# 	self.cell_selected = False
 
 	def __key_pressed(self, event):
-		if self.current_row >= 0 and self.current_col >= 0 and self.cell_selected == True:
+		if self.current_row >= 0 and self.current_col >= 0 and self.grid_cleared:
 			self.game.grid[self.current_row][self.current_col] = (event.char)
 			self.current_col, self.current_row = -1, -1
 			self.__draw_puzzle()
@@ -161,7 +161,6 @@ if __name__ == '__main__':
 	words.json_parse("input.json")
 	game = Crossword(13, 13, '-', 1, words.allowed_words)
 	game.compute_crossword()
-	# game.print_solution()
 	root = Tk()
 	self = CrosswordGui(root, game, 30)
 	root.geometry("%dx%d" % (self.WIDTH, self.HEIGHT + 40))
