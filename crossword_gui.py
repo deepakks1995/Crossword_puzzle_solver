@@ -3,7 +3,7 @@ from crossword import Crossword
 from word import Word
 from json_parser import Json_Parser
 from clue_setter import Clue_Setter
-from math import *
+from copy import deepcopy
 try:
 	from Tkinter import *
 except ImportError:
@@ -22,7 +22,6 @@ class CrosswordGui(Frame):
 		self.HEIGHT = self.MARGIN*2 + self.SIDE * self.row
 		self.WIDTH = self.MARGIN*2 + self.SIDE * self.col
 		self.grid_cleared = False
-		self.previous_row, self.previous_col = -5, -5
 		self.__initUI()
 
 	def __initUI(self):
@@ -105,14 +104,68 @@ class CrosswordGui(Frame):
 		self.set_clues.config(state="normal")
 		print "Crossword Generated! To try another press Compute Crossword button"
 
+	def __find_vertical__(self, i, j, grid):
+		if i < self.col - 1:
+			if grid[i+1][j]!= self.game.empty:
+				return 1
+			else:
+				return 0
+		else:
+			return -1
+
+	def __find_horizontal__(self, i, j, grid):
+		if j < self.col - 1:
+			if grid[i][j+1]!= self.game.empty:
+				return 1
+			else:
+				return 0
+		else:
+			return -1
+
+	def __extract_words__(self):
+		extracted_words = []
+		current_word = ""
+		grid = deepcopy(self.game.grid)
+		i , j = 0 , 0
+		while i < self.row:
+			j = 0
+			while j < self.col:
+				if grid[i][j] != self.game.empty:
+					horizontal = self.__find_horizontal__(i,j,grid)
+					if horizontal != -1:
+						if horizontal == 1:
+							itr = j
+							while itr < self.col and grid[i][itr] != self.game.empty:
+								current_word += grid[i][itr]
+								itr += 1
+							extracted_words.append(current_word)
+							j = itr - 1
+							current_word = ""
+				j += 1
+			i += 1
+		j = 0
+		while j < self.col:
+			i = 0
+			while i < self.row:
+				if grid[i][j] != self.game.empty:
+					vertical = self.__find_vertical__(i, j, grid)
+					if vertical != -1:
+						if vertical:
+							itr = i
+							while itr < self.row and grid[itr][j]!= self.game.empty:
+								current_word += grid[itr][j]
+								itr += 1
+							extracted_words.append(current_word)
+							i = itr - 1
+							current_word = ""
+				i += 1
+			j += 1
+		return [Word(word, "") for word in extracted_words ]
+
 	def __specify_location(self):
-		for word in self.entered_word_list:
-			print word
-			self.game.current_word_list.append(Word(word, ""))
 		# self.game.current_word_list.append(Word(word, "") for word in self.entered_word_list)
-		self.entered_word = ""
-		self.entered_word_list = []
 		self.game.flag = True
+		self.game.current_word_list  = self.__extract_words__()
 		self.game.compute_crossword()
 		self.__draw_puzzle()
 		self.grid_cleared = False
@@ -126,8 +179,6 @@ class CrosswordGui(Frame):
 		self.game.flag = False
 		self.grid_cleared = True
 		self.game.clear_grid()
-		self.entered_word = ""
-		self.entered_word_list = []
 		self.set_clues.config(state="disabled")
 
 	def __cell_clicked(self, event):
@@ -160,11 +211,6 @@ class CrosswordGui(Frame):
 			self.set_clues.config(state="disabled")
 			self.specify_location.config(state="normal")
 			self.game.grid[self.current_row][self.current_col] = (event.char)
-			if ( (abs(self.current_row - self.previous_row) == 1 ) or (abs(self.current_col - self.previous_col) == 1)):
-				self.entered_word += event.char
-			else:
-				self.entered_word_list.append(self.entered_word)
-				self.entered_word = ""
 			self.previous_row, self.previous_col = self.current_row, self.current_col
 			self.current_col, self.current_row = -1, -1
 			self.__draw_puzzle()
