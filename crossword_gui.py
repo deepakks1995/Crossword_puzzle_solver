@@ -102,7 +102,7 @@ class CrosswordGui(Frame):
 		self.__draw_puzzle()
 		self.specify_location.config(state="disabled")
 		self.set_clues.config(state="normal")
-		print "Crossword Generated! To try another press Compute Crossword button"
+		print "Crossword Generated!......."
 
 	def __find_vertical__(self, i, j, grid):
 		if i < self.col - 1:
@@ -182,7 +182,7 @@ class CrosswordGui(Frame):
 		self.__draw_puzzle()
 		self.grid_cleared = False
 		self.specify_location.config(state="disabled")
-		self.compute_crossword.config(state="normal")
+		# self.compute_crossword.config(state="normal")
 		self.set_clues.config(state="normal")
 		print "Crossword Generated! To try another press Compute Crossword button"
 
