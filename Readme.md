@@ -7,6 +7,7 @@
 	Simply run the following commands in terminal
 	$ sudo make 
 
+
 <b>How to run:</b>
 
 Simply run the following lines in terminal:
